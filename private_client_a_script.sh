@@ -29,7 +29,7 @@ echo "
 <div>
 <h1>Welcome the Epstein Island Private Subnet 🏝️ — No Internet, No NAT, No Witnesses!</h1>
 
-<h2>"I have never visited his island."</h2>
+<h2>\"I have never visited his island.\"</h2>
 
 <img src="https://theowaf-class7-kirk.s3.us-east-1.amazonaws.com/bill_clinton.jpg" alt="Clinton" width="25%">
 

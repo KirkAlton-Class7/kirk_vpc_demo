@@ -29,7 +29,7 @@ echo "
 <div>
 <h1>Welcome the Epstein Island Private Subnet 🏝️ — No Internet, No NAT, No Witnesses!</h1>
 
-<h2>"I have no recollection of ever meeting this lady ... It just never happened."</h2>
+<h2>\"I have no recollection of ever meeting this lady . . . It just never happened.\"</h2>
 
 <img src="https://theowaf-class7-kirk.s3.us-east-1.amazonaws.com/prince_andrew.jpg" alt="Prince Andrew" width="25%">
 

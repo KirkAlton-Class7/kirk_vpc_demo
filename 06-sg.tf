@@ -1,7 +1,7 @@
 # Public App Security Group
 resource "aws_security_group" "public_app" {
   name        = "public_app_sg"
-  description = "Allow all inbound/outbound traffic for HTTP and SSH"
+  description = "Allow all inbound/outbound traffic for HTTP, HTTPS and SSH"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -27,13 +27,6 @@ resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_https_ipv4" {
   to_port           = 443
 }
 
-# SG Rule: Allow all HTTP Outbound for Public App SG
-resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_ipv4" {
-  security_group_id = aws_security_group.public_app.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-
 # SG Rule: Allow all SSH Inbound for Public App SG
 resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_ssh_ipv4" {
   security_group_id = aws_security_group.public_app.id
@@ -42,6 +35,14 @@ resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_ssh_ipv4" {
   ip_protocol       = "tcp"
   to_port           = 22
 }
+
+# SG Rule: Allow all Outbound IPv4 for Public App SG
+resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_ipv4_public_app" {
+  security_group_id = aws_security_group.public_app.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
 
 
 
@@ -57,32 +58,6 @@ resource "aws_security_group" "bastion_host" {
 }
 
 
-# SG Rule: Allow all HTTP Inbound for Bastion Host SG
-resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_http_ipv4_bastion" {
-  security_group_id = aws_security_group.bastion_host.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-# SG Rule: Allow all HTTPS Inbound for Bastion Host SG
-resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_https_ipv4_bastion" {
-  security_group_id = aws_security_group.bastion_host.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 443
-  ip_protocol       = "tcp"
-  to_port           = 443
-}
-
-# SG Rule: Allow all HTTP Outbound for Bastion Host SG
-resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_ipv4_bastion" {
-  security_group_id = aws_security_group.bastion_host.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" # semantically equivalent to all ports
-}
-
-
 # SG Rule: Allow RDP Inbound from Authorized IPv4 Addresses for Bastion Host SG
 resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_rdp_ipv4" {
   security_group_id = aws_security_group.bastion_host.id
@@ -92,7 +67,12 @@ resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_rdp_ipv4" {
   to_port           = 3389
 }
 
-
+# SG Rule: Allow all Outbound IPv4 for Bastion Host SG
+resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_ipv4_bastion" {
+  security_group_id = aws_security_group.bastion_host.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
 
 
 # Private App Security Group
@@ -115,6 +95,15 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_http_from_public_a
   referenced_security_group_id = aws_security_group.public_app.id
 }
 
+# SG Rule: Allow HTTPS Inbound only from Public App SG
+resource "aws_vpc_security_group_ingress_rule" "allow_inbound_https_from_public_app_sg" {
+  security_group_id = aws_security_group.private_app.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+}
+
 # SG Rule: Allow SSH Inbound only from Public App SG
 resource "aws_vpc_security_group_ingress_rule" "allow_inbound_ssh_from_public_app_sg" {
   security_group_id = aws_security_group.private_app.id
@@ -124,6 +113,12 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_ssh_from_public_ap
   referenced_security_group_id = aws_security_group.public_app.id
 }
 
+# SG Rule: Allow all Outbound IPv4 for Private App SG
+resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_ipv4_private_app" {
+  security_group_id = aws_security_group.private_app.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
 
 
 
@@ -149,6 +144,15 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_redis_from_private
   referenced_security_group_id = aws_security_group.private_app.id
 }
 
+# SG Rule: Allow Internal Outbound IPv4 for Redis/Memcache SG
+resource "aws_vpc_security_group_egress_rule" "allow_internal_outbound_ipv4_redis" {
+  security_group_id = aws_security_group.private_data_redis.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
+
+
 # MySQL SG
 resource "aws_security_group" "private_data_mysql" {
   name        = "private_data_mysql_sg"
@@ -167,6 +171,13 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_mysql_from_private
   ip_protocol       = "tcp"
   to_port           = 3306
   referenced_security_group_id = aws_security_group.private_app.id
+}
+
+# SG Rule: Allow Internal Outbound Traffic for MySQL SG
+resource "aws_vpc_security_group_egress_rule" "allow_internal_outbound_ipv4_mysql" {
+  security_group_id = aws_security_group.private_data_mysql.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
 
@@ -190,6 +201,13 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_postgresql_from_pr
   referenced_security_group_id = aws_security_group.private_app.id
 }
 
+# SG Rule: Allow Internal Outbound Traffic for PostgreSQL SG
+resource "aws_vpc_security_group_egress_rule" "allow_internal_outbound_ipv4_postgresql" {
+  security_group_id = aws_security_group.private_data_postgresql.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
 
 # Oracle SG
 resource "aws_security_group" "private_data_oracle" {
@@ -209,6 +227,13 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_oracle_from_privat
   ip_protocol       = "tcp"
   to_port           = 1521
   referenced_security_group_id = aws_security_group.private_app.id
+}
+
+# SG Rule: Allow Internal Outbound Traffic for Oracle SG
+resource "aws_vpc_security_group_egress_rule" "allow_internal_outbound_ipv4_oracle" {
+  security_group_id = aws_security_group.private_data_oracle.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
 # MSSQL SG
@@ -231,6 +256,13 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_mssql_from_private
   referenced_security_group_id = aws_security_group.private_app.id
 }
 
+# SG Rule: Allow Internal Outbound Traffic for MSSQL SG
+resource "aws_vpc_security_group_egress_rule" "allow_internal_outbound_ipv4_mssql" {
+  security_group_id = aws_security_group.private_data_mssql.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
 
 # MongoDB SG
 resource "aws_security_group" "private_data_mongodb" {
@@ -250,4 +282,11 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_mongodb_from_priva
   ip_protocol       = "tcp"
   to_port           = 27017
   referenced_security_group_id = aws_security_group.private_app.id
+}
+
+# SG Rule: Allow Internal Outbound Traffic for MongDB SG
+resource "aws_vpc_security_group_egress_rule" "allow_internal_outbound_ipv4_mongodb" {
+  security_group_id = aws_security_group.private_data_mongodb.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  ip_protocol       = "-1" # semantically equivalent to all ports
 }
