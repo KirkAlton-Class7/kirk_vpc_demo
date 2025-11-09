@@ -1,7 +1,7 @@
 #Target Group Configurations
 
 #Private Client Mixed ASG Target Group
-resource "aws_lb_target_group" "private_client_mixed_asg" {
+resource "aws_lb_target_group" "private_mixed_asg_tg" {
     name     = "private-client-mixed-asg-tg"
     target_type = "instance"
     port     = 80
@@ -24,3 +24,6 @@ resource "aws_lb_target_group" "private_client_mixed_asg" {
         unhealthy_threshold = 3
     }
 }
+
+# EVERYTHING LAUNCHED FINE BUT TARGET GROUP WASN'T REGISTERED
+# FIND OUT HOW TO REGISTER TARGET GROUP

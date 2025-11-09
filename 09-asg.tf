@@ -5,6 +5,8 @@ resource "aws_autoscaling_group" "private_client_mixed_asg" {
   desired_capacity   = 3
   max_size           = 5
   min_size           = 2
+  #target_group_arns = [aws_autoscaling_group.private_client_mixed_asg.arn] # A list of ARNS is expected for an ASG, so use brackets and add an "s" make "target_group_arn" plural.
+
 
   #launch_template {
     #id      = aws_launch_template.private_client_a_asg.id
@@ -18,6 +20,15 @@ resource "aws_autoscaling_group" "private_client_mixed_asg" {
         version = "$Latest"
       }
     
+      
+      override {
+      instance_type     = "t2.nano" # Instance type is always required for any override.
+      launch_template_specification {
+        launch_template_id = aws_launch_template.private_client_a_asg.id # Override to use Launch Template for Private Client A
+        version = "$Latest"
+      }      
+      }
+      
       override {
       instance_type     = "t2.micro" # Instance type is always required for any override.
       launch_template_specification {
