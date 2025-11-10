@@ -22,7 +22,7 @@ resource "aws_autoscaling_group" "private_client_mixed_asg" {
     
       
       override {
-      instance_type     = "t3.nano" # Instance type is always required for any override.
+      instance_type     = "t2.nano" # Instance type is always required for any override.
       launch_template_specification {
         launch_template_id = aws_launch_template.private_client_a_asg.id # Override to use Launch Template for Private Client A
         version = "$Latest"
@@ -30,7 +30,7 @@ resource "aws_autoscaling_group" "private_client_mixed_asg" {
       }
       
       override {
-      instance_type     = "t2.micro" # Instance type is always required for any override.
+      instance_type     = "t3.micro" # Instance type is always required for any override.
       launch_template_specification {
         launch_template_id = aws_launch_template.private_client_b_asg.id # Override to use Launch Template for Private Client B
         version = "$Latest"
@@ -38,7 +38,7 @@ resource "aws_autoscaling_group" "private_client_mixed_asg" {
       }
 
       override {
-      instance_type     = "t2.nano" # Instance type is always required for any override.
+      instance_type     = "t3.nano" # Instance type is always required for any override.
       launch_template_specification {
         launch_template_id = aws_launch_template.private_client_c_asg.id # Override to use Launch Template for Private Client C
       }      
