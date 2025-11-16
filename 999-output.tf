@@ -115,6 +115,6 @@ output "public_app_lb_01_ifno" {
 #   description = "Private Client ASG: Name, Subnets"
 # }
 
-# FIX OUTPUT FOR PRIVATE CLIENT ASG
+# FIX OUTPUT FOR PRIVATE CLIENT ASG.
 # Block type "tag" is represented by a set of objects, and set elements do not have addressable keys.
 #To find elements matching specific criteria, use a "for" expression with an "if" clause.
